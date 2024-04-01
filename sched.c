@@ -34,6 +34,7 @@ typedef struct thread_data_t {
     long long int *totalSum; 
 } thread_data_t;
 
+//Taken directly from the provided print_progress.c file
 void print_progress(pid_t localTid, size_t value) {
         pid_t tid = syscall(__NR_gettid);
 
@@ -91,10 +92,12 @@ void* arraySum(void* param) {
             threadSum += data->data[i];
             clock_gettime(CLOCK_MONOTONIC, &endTime);
 
-            long int convertedStart = (startTime.tv_sec * 1000000000.0 + startTime.tv_nsec);
-            long int convertedEnd = (endTime.tv_sec * 1000000000.0 + endTime.tv_nsec);
+            //Using a long long int to insure that overflow doesn't happen. Technically we can continue using a long int if we do some extra calculations but long long int saves us some calculations. 
 
-            long int timeDiff = (convertedEnd - convertedStart);
+            long long int convertedStart = (startTime.tv_sec * 1000000000.0 + startTime.tv_nsec);
+            long long int convertedEnd = (endTime.tv_sec * 1000000000.0 + endTime.tv_nsec);
+
+            long long int timeDiff = (convertedEnd - convertedStart);
 
             if (timeDiff > maxLatency) {
                 maxLatency = timeDiff;
@@ -122,6 +125,7 @@ int main(int argc, char* argv[]) {
     int* array = (int*)malloc(2000000 * sizeof(int));
     long long int totalSum = 0;
     
+    //Same setup as HW2 just that lock is used every time for program run.
     pthread_mutex_t lock;
     pthread_mutex_t *lockPtr = NULL;
 
